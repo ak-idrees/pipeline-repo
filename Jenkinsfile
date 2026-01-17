@@ -26,7 +26,7 @@ pipeline {
             steps {
                 echo "Checking out source code from branch: ${params.sourceBranch}"
                 git branch: params.sourceBranch,
-                    url: 'https://github.com/ak-idrees/project-nodejs-.git'
+                    url: 'https://github.com/ak-idrees/my-pipeline.git'
             }
         }
 
@@ -78,3 +78,4 @@ pipeline {
         }
     }
 }
+
