@@ -7,16 +7,16 @@ pipeline {
             defaultValue: 'main',
             description: 'Branch of the source code'
         )
-        string(
+        choice(
             name: 'depBranch',
-            defaultValue: 'sigma',
-            description: 'Client name (sigma or roko)'
+            choices: ['sigma', 'roko'],
+            description: 'Client name to build the Docker image for'
         )
     }
 
     environment {
         AWS_REGION = 'eu-north-1'
-        ECR_REGISTRY = '552162429839.dkr.ecr.eu-north-1.amazonaws.com/nodejs-app'
+        ECR_REGISTRY = '552162429839.dkr.ecr.eu-north-1.amazonaws.com'
         ECR_REPO = 'nodejs-app'
     }
 
@@ -30,17 +30,11 @@ pipeline {
             }
         }
 
-        stage('Client Selection') {
+        stage('Select Client') {
             steps {
                 script {
-                    // Simple IF / ELSE logic
-                    if (params.depBranch.toLowerCase() == 'sigma') {
-                        env.CLIENT = 'sigma'
-                        echo 'Building for SIGMA client'
-                    } else {
-                        env.CLIENT = 'roko'
-                        echo 'Building for ROKO client'
-                    }
+                    env.CLIENT = params.depBranch.toLowerCase()
+                    echo "Building for client: ${env.CLIENT}"
                 }
             }
         }
@@ -58,8 +52,8 @@ pipeline {
             steps {
                 script {
                     sh """
-                    aws ecr get-login-password --region ${AWS_REGION} |
-                    docker login --username AWS --password-stdin ${ECR_REGISTRY}
+                        aws ecr get-login-password --region ${AWS_REGION} | \
+                        docker login --username AWS --password-stdin ${ECR_REGISTRY}
                     """
                 }
             }
@@ -68,14 +62,15 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
+                    echo "Tagging and pushing Docker image to ECR"
                     sh """
-                    docker tag ${ECR_REPO}:${env.CLIENT} ${ECR_REGISTRY}/${ECR_REPO}:${env.CLIENT}
-                    docker push ${ECR_REGISTRY}/${ECR_REPO}:${env.CLIENT}
+                        docker tag ${ECR_REPO}:${env.CLIENT} ${ECR_REGISTRY}/${ECR_REPO}:${env.CLIENT}
+                        docker push ${ECR_REGISTRY}/${ECR_REPO}:${env.CLIENT}
                     """
-                    echo "Image pushed: ${ECR_REPO}:${env.CLIENT}"
+                    echo "Image pushed successfully: ${ECR_REPO}:${env.CLIENT}"
                 }
             }
         }
-    }
-}
 
+    } // stages
+}
