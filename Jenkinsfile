@@ -64,19 +64,31 @@ pipeline {
             }
         }
 
-        stage('Push Docker Image') {
-            steps {
-                script {
-                    echo "Tagging and pushing Docker image to ECR"
-                    sh """
-                    docker tag ${ECR_REPO}:${env.IMAGE_TAG} ${ECR_REGISTRY}/${ECR_REPO}:${env.IMAGE_TAG}
-                    docker push ${ECR_REGISTRY}/${ECR_REPO}:${env.IMAGE_TAG}
-                    """
-                    echo "Image pushed: ${ECR_REPO}:${env.IMAGE_TAG}"
-                }
-            }
+      stage('Push Docker Image') {
+    steps {
+        script {
+            echo "Tagging and pushing Docker image to ECR"
+            sh """
+            docker tag ${ECR_REPO}:${env.IMAGE_TAG} ${ECR_REGISTRY}/${ECR_REPO}:${env.IMAGE_TAG}
+            docker push ${ECR_REGISTRY}/${ECR_REPO}:${env.IMAGE_TAG}
+            """
+            echo "Image pushed: ${ECR_REPO}:${env.IMAGE_TAG}"
         }
+    }
+}
 
-    } // stages
+stage('Deploy Container') {
+    steps {
+        script {
+            echo "Pulling Docker image: ${ECR_REGISTRY}/${ECR_REPO}:${env.IMAGE_TAG}"
+            sh "docker pull ${ECR_REGISTRY}/${ECR_REPO}:${env.IMAGE_TAG}"
+
+            echo "Running container for client: ${env.CLIENT}"
+            sh """
+            docker rm -f ${env.CLIENT}-container || true
+            docker run -d --name ${env.CLIENT}-container ${ECR_REGISTRY}/${ECR_REPO}:${env.IMAGE_TAG}
+            """
+        }
+    }
 }
 
