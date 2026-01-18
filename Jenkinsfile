@@ -77,18 +77,23 @@ pipeline {
     }
 }
 
-stage('Deploy Container') {
+ stage('Deploy Container') {
     steps {
         script {
             echo "Pulling Docker image: ${ECR_REGISTRY}/${ECR_REPO}:${env.IMAGE_TAG}"
             sh "docker pull ${ECR_REGISTRY}/${ECR_REPO}:${env.IMAGE_TAG}"
 
-            echo "Running container for client: ${env.CLIENT}"
+            echo "Stopping any existing container for client: ${env.CLIENT}"
+            sh "docker rm -f ${env.CLIENT}-container || true"
+
+            echo "Running container for client: ${env.CLIENT} on port 3000"
             sh """
-            docker rm -f ${env.CLIENT}-container || true
-            docker run -d --name ${env.CLIENT}-container ${ECR_REGISTRY}/${ECR_REPO}:${env.IMAGE_TAG}
+            docker run -d --name ${env.CLIENT}-container -p 3000:3000 ${ECR_REGISTRY}/${ECR_REPO}:${env.IMAGE_TAG}
             """
+
+            echo "Container for ${env.CLIENT} is now running. Access via EC2 public IP:3000"
         }
     }
 }
+
 
