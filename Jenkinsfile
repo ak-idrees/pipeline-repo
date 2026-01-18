@@ -31,19 +31,24 @@ pipeline {
         }
 
         stage('Select Client') {
-            steps {
-                script {
-                    env.CLIENT = params.depBranch.toLowerCase()
-                    echo "Building for client: ${env.CLIENT}"
-                }
-            }
+    steps {
+        script {
+            // Set client based on parameter
+            env.CLIENT = params.depBranch.toLowerCase()
+            echo "Building for client: ${env.CLIENT}"
+
+            // Set image tag using client name + Jenkins build number
+            env.IMAGE_TAG = "${env.CLIENT}-v${BUILD_NUMBER}"
+            echo "Docker image tag will be: ${env.IMAGE_TAG}"
         }
+    }
+}
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    echo "Building Docker image: ${ECR_REPO}:${env.CLIENT}"
-                    sh "docker build -t ${ECR_REPO}:${env.CLIENT} ."
+                    echo "Building Docker image: ${ECR_REPO}:${env.IMAGE_TAG}"
+                    sh "docker build -t ${ECR_REPO}:${env.IMAGE_TAG} ."
                 }
             }
         }
@@ -64,13 +69,14 @@ pipeline {
                 script {
                     echo "Tagging and pushing Docker image to ECR"
                     sh """
-                        docker tag ${ECR_REPO}:${env.CLIENT} ${ECR_REGISTRY}/${ECR_REPO}:${env.CLIENT}
-                        docker push ${ECR_REGISTRY}/${ECR_REPO}:${env.CLIENT}
+                    docker tag ${ECR_REPO}:${env.IMAGE_TAG} ${ECR_REGISTRY}/${ECR_REPO}:${env.IMAGE_TAG}
+                    docker push ${ECR_REGISTRY}/${ECR_REPO}:${env.IMAGE_TAG}
                     """
-                    echo "Image pushed successfully: ${ECR_REPO}:${env.CLIENT}"
+                    echo "Image pushed: ${ECR_REPO}:${env.IMAGE_TAG}"
                 }
             }
         }
 
     } // stages
 }
+
