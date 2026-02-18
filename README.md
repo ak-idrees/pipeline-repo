@@ -1,4 +1,28 @@
-Sharks Node Application by DigitalOcean
-This is a Node JS app by DO to build and run a Node JS appliation on a Docker image with the help of Dockerfile.
-
-We'll use this source to build and run the app via Jenkins.
+You can navigate as per the following timestamps:
+---- What is Docker:- 
+--- What is Docker Architecture:-
+--- What is Docker Container:-
+---Important Docker Terms:-
+--- What is Docker Used for:-
+---Benefits of Using Docker:-
+---How to Install Docker on Linux:-
+----Running the first docker command:-
+--- Docker Commands for DevOps Engineers:-
+----What is Dockerfile:-
+-----Dockerfile Instructions [Step-by-Step]:-
+-----Dockerfile Lab:-
+-----Multi-Stage Builds in Docker:-
+----What is a multi-stage Dockerfile:-
+----How to Build Docker Image using Multistage Dockerfile:-
+-----Docker Volumes
+-----Docker Storage 
+-----Docker Volumes vs Bind Mounts
+-------Docker Volumes Features 
+-----Docker Volumes Lab 
+---Docker Networking 
+---Docker Networking Types docker network command 
+---docker network connect
+----Docker Image Registry 
+---Docker Hub [hub.docker.com] 
+----Docker Interview Questions and Answers 
+----COPY vs ADD in Docker
